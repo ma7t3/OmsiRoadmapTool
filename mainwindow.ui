@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>574</width>
-    <height>325</height>
+    <height>607</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -74,6 +74,9 @@
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
         <widget class="QLineEdit" name="leTargetPath">
+         <property name="text">
+          <string>D:/repos/build-OmsiRoadmapTool-Desktop_Qt_6_6_0_MinGW_64_bit-Debug/Roadmap.png</string>
+         </property>
          <property name="readOnly">
           <bool>true</bool>
          </property>
@@ -121,17 +124,7 @@
      </widget>
     </item>
     <item>
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
+     <widget class="QListWidget" name="lwLog"/>
     </item>
    </layout>
   </widget>

@@ -1,6 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "OmsiMap.h"
+#include "OmsiSpline.h"
+#include "OmsiMapTile.h"
+
 #include <QMainWindow>
 #include <QDir>
 #include <QSettings>
@@ -19,17 +23,20 @@ public:
 
 private slots:
     void on_pbOmsiDirBrowse_clicked();
-
     void on_pbMapsReload_clicked();
-
     void on_pbTargetPathBrowse_clicked();
-
     void on_pbStart_clicked();
+
+    void drawSpline(QPainter *, OmsiSpline *, OmsiMapTile *, int height);
+
+    void log(QString);
 
 private:
     Ui::MainWindow *ui;
 
     QSettings *settings;
     QDir *omsiDir;
+
+    int RESOLUTION = 256;
 };
 #endif // MAINWINDOW_H
