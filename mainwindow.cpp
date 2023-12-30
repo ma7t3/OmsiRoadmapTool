@@ -417,8 +417,11 @@ void MainWindow::drawPath(QPainter *painter, OmsiPath *path, OmsiMapTile *tile, 
 }
 
 void MainWindow::drawBusstop(QPainter *painter, OmsiSceneryobject *object, OmsiMapTile *tile, int height) {
-    QPen busstopPen(QColor("#4080ff"), 12);
+    QPen busstopPen(Qt::black, 6);
+    QPen busstopLabelPen(QColor("#ffc000"));
+    QBrush busstopBrush (QColor("#ffc000"));
     painter->setPen(busstopPen);
+    painter->setBrush(busstopBrush);
 
     QFont busstopLabelFont("Open Sans", 26, 700);
     painter->setFont(busstopLabelFont);
@@ -427,7 +430,9 @@ void MainWindow::drawBusstop(QPainter *painter, OmsiSceneryobject *object, OmsiM
     x = (tile->x()) * 300 + object->x();
     y = (((height - 1) - tile->y()) * 300) + (300 - object->y());
 
-    painter->drawEllipse(x - 6, y - 6, 12, 12);
+    painter->drawEllipse(x - 10, y - 10, 20, 20);
+
+    painter->setPen(busstopLabelPen);
     painter->drawText(QPoint(x + 15, y + 10), "Label");
 }
 
