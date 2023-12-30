@@ -38,3 +38,32 @@ int OmsiMap::height() const {
     }
     return value + 1;
 }
+
+QList<QPoint> OmsiMap::busstops() const {
+    return _busstops;
+}
+
+void OmsiMap::setBusstops(const QList<QPoint> &newBusstops) {
+    _busstops = newBusstops;
+}
+
+void OmsiMap::addBusstop(const QPoint busstop) {
+    _busstops << busstop;
+}
+
+QList<QPair<QPoint, QString> > OmsiMap::busstopLabels() const {
+    return _busstopLabels;
+}
+
+void OmsiMap::setBusstopLabels(const QList<QPair<QPoint, QString> > &newBusstopLabels) {
+    _busstopLabels = newBusstopLabels;
+}
+
+void OmsiMap::addBusstopLabel(const QPair<QPoint, QString> busstopLabel) {
+    _busstopLabels << busstopLabel;
+}
+
+
+
+
+
