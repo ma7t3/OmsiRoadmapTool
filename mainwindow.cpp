@@ -76,8 +76,6 @@ void MainWindow::on_pbMapsReload_clicked() {
             continue;
         ui->cbMaps->addItem(current);
     }
-
-    ui->cbMaps->setCurrentText("Testmap");
 }
 
 void MainWindow::on_pbTargetPathBrowse_clicked() {
