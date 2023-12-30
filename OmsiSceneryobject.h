@@ -9,7 +9,7 @@
 class OmsiSceneryobject
 {
 public:
-    OmsiSceneryobject(QString fileName, float x, float y, float rot);
+    OmsiSceneryobject(QString fileName, float x, float y, float rot, QStringList strings);
 
     float x() const;
     void setX(float newX);
@@ -27,9 +27,14 @@ public:
 
     QList<OmsiPath *> pathList();
 
+    QStringList strings() const;
+    void setStrings(const QStringList &newStrings);
+    QString stringAt(int);
+
 private:
     float _x, _y, _rot;
     QString _fileName;
+    QStringList _strings;
 };
 
 #endif // OMSISCENERYOBJECT_H

@@ -1,10 +1,11 @@
 #include "OmsiSceneryobject.h"
 
-OmsiSceneryobject::OmsiSceneryobject(QString fileName, float x, float y, float rot) :
+OmsiSceneryobject::OmsiSceneryobject(QString fileName, float x, float y, float rot, QStringList strings) :
     _x(x),
     _y(y),
     _rot(rot),
-    _fileName(fileName) {
+    _fileName(fileName),
+    _strings(strings) {
 }
 
 float OmsiSceneryobject::x() const {
@@ -85,6 +86,21 @@ QList<OmsiPath *> OmsiSceneryobject::pathList() {
     }
 
     return result;
+}
+
+QStringList OmsiSceneryobject::strings() const {
+    return _strings;
+}
+
+void OmsiSceneryobject::setStrings(const QStringList &newStrings) {
+    _strings = newStrings;
+}
+
+QString OmsiSceneryobject::stringAt(int index) {
+    if(_strings.count() <= index)
+        return "";
+
+    return _strings[index];
 }
 
 

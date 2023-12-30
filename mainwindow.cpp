@@ -187,6 +187,10 @@ void MainWindow::on_pbStart_clicked() {
          * y
          * z
          * rot
+         * .
+         * .
+         * StrCount
+         * Strings
          *
          * */
 
@@ -196,7 +200,7 @@ void MainWindow::on_pbStart_clicked() {
                 float x, y, rot, rad, len;
                 QString fileName, id;
 
-                bool ok[5];
+                bool ok[6];
 
                 s.readLine();
                 fileName = s.readLine();
@@ -224,8 +228,9 @@ void MainWindow::on_pbStart_clicked() {
             if(line == "[object]") {
                 float x, y, rot, rad, len;
                 QString fileName, id;
+                int strCount;
 
-                bool ok[3];
+                bool ok[4];
 
                 s.readLine();
                 fileName = s.readLine();
@@ -234,6 +239,15 @@ void MainWindow::on_pbStart_clicked() {
                 y = s.readLine().toFloat(&ok[1]);
                 s.readLine();
                 rot = s.readLine().toFloat(&ok[2]);
+                s.readLine();
+                s.readLine();
+                strCount = s.readLine().toFloat(&ok[3]);
+                QStringList strings = {};
+                if(ok[3]) {
+                    for(int i = 0; i < strCount; i++) {
+                        strings << s.readLine();
+                    }
+                }
 
                 if(!ok[0] || !ok[1] || !ok[2]) {
                     log(tr("Bad Object - No. %1").arg(id));
@@ -242,7 +256,7 @@ void MainWindow::on_pbStart_clicked() {
 
                 fileName.replace("\\", "/");
 
-                OmsiSceneryobject *object = new OmsiSceneryobject(omsiDir->path() + "/" + fileName, x, y, rot);
+                OmsiSceneryobject *object = new OmsiSceneryobject(omsiDir->path() + "/" + fileName, x, y, rot, strings);
                 tile->addObject(object);
             }
         }
@@ -438,7 +452,7 @@ void MainWindow::drawBusstop(QPainter *painter, OmsiSceneryobject *object, OmsiM
     painter->drawEllipse(x - 10, y - 10, 20, 20);
 
     painter->setPen(busstopLabelPen);
-    painter->drawText(QPoint(x + 15, y + 10), "Label");
+    painter->drawText(QPoint(x + 15, y + 10), object->stringAt(0));
 }
 
 void MainWindow::log(QString message) {
