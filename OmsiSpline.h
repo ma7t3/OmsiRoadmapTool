@@ -29,6 +29,8 @@ public:
 
     bool exists();
 
+    QList<QPair<int, float>> pathList();
+
     int pathType();
 
 private:

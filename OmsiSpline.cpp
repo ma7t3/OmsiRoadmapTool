@@ -62,6 +62,39 @@ bool OmsiSpline::exists() {
     return f.exists();
 }
 
+QList<QPair<int, float>> OmsiSpline::pathList() {
+    QList<QPair<int, float>> result;
+    QFile f(_fileName);
+    if(!f.exists())
+        return {};
+
+    if(!f.open(QIODevice::ReadOnly))
+        return {};
+
+    QTextStream s(&f);
+    s.setEncoding(QStringConverter::Utf8);
+
+    while(!s.atEnd()) {
+        QString line = s.readLine();
+
+        if(line == "[path]") {
+            QString strType = s.readLine();
+            QString strPos = s.readLine();
+
+            bool ok1, ok2;
+            int type = strType.toInt(&ok1);
+            float pos = strPos.toFloat(&ok2);
+
+            if(!ok1 || !ok2)
+                continue;
+
+            result << QPair<int, float>(type, pos);
+        }
+    }
+
+    return result;
+}
+
 int OmsiSpline::pathType() {
     if(_fileName == "<PATH>")
         return 0;

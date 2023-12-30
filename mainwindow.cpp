@@ -5,6 +5,7 @@
 #include "OmsiMapTile.h"
 #include "OmsiSpline.h"
 #include "omsisceneyobject.h"
+#include "OmsiPath.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -259,9 +260,6 @@ void MainWindow::on_pbStart_clicked() {
     width = map->width() * 300;
     height = map->height() * 300;
 
-    QPen streetPen(Qt::white, 5);
-    QPen railPen(Qt::gray, 2);
-
     QPixmap *pixmap = new QPixmap(width, height);
     pixmap->fill(Qt::black);
 
@@ -271,22 +269,12 @@ void MainWindow::on_pbStart_clicked() {
     int i = 0;
     foreach(OmsiMapTile *tile, map->tiles()) {
         foreach(OmsiSpline *spline, tile->splines()) {
-            int pathType = spline->pathType();
-            if(pathType == -1)
-                continue;
-            else if(pathType == 0)
-                painter->setPen(streetPen);
-            else if(pathType == 1)
-                painter->setPen(railPen);
-
             drawSpline(painter, spline, tile, map->height());
         }
 
-        painter->setPen(streetPen);
         foreach(OmsiSceneryobject *object, tile->objects()) {
-            qDebug() << object->rot();
-            QList<OmsiSpline *> pathes = object->pathList();
-            foreach(OmsiSpline *path, pathes) {
+            QList<OmsiPath *> pathes = object->pathList();
+            foreach(OmsiPath *path, pathes) {
 
                 // adjust coordinates
                 float x = path->x(), y = path->y(), objRot = 360 - object->rot();
@@ -298,7 +286,7 @@ void MainWindow::on_pbStart_clicked() {
                 path->setY(object->y() + newY);
                 path->setRot(path->rot() - objRot);
 
-                drawSpline(painter, path, tile, map->height());
+                drawPath(painter, path, tile, map->height());
             }
         }
 
@@ -319,12 +307,48 @@ void MainWindow::on_pbStart_clicked() {
 }
 
 void MainWindow::drawSpline(QPainter *painter, OmsiSpline *spline, OmsiMapTile *tile, int mapHeight) {
+    QList<QPair<int, float>> pathList = spline->pathList();
+
+    for(int i = 0; i < pathList.count(); i++) {
+        QPair<int, float> current = pathList[i];
+
+        float newRad;
+        if(spline->rad() == 0)
+            newRad = 0;
+        else
+            newRad = spline->rad() - current.second;
+
+        float newLen = spline->len();
+        if(newRad != 0)
+            newLen = spline->len() * (newRad / spline->rad());
+
+        float x = current.second, y = 0, splRot = 360 - spline->rot();
+
+        float newX = (x * (qCos(qDegreesToRadians(splRot))) - (y * qSin(qDegreesToRadians(splRot))));
+        float newY = (x * (qSin(qDegreesToRadians(splRot))) + (y * qCos(qDegreesToRadians(splRot))));
+
+        OmsiPath *path = new OmsiPath(spline->x() + newX, spline->y() + newY, - splRot, newLen, newRad, current.first);
+        drawPath(painter, path, tile, mapHeight);
+    }
+}
+
+void MainWindow::drawPath(QPainter *painter, OmsiPath *path, OmsiMapTile *tile, int mapHeight) {
+    QPen streetPen(Qt::white, 4);
+    QPen railPen(Qt::gray, 2);
+
+    if(path->type() == 0)
+        painter->setPen(streetPen);
+    else if(path->type() == 2)
+        painter->setPen(railPen);
+    else
+        return;
+
     // get all values from spline
-    float x = spline->x();
-    float y = spline->y();
-    float rot = spline->rot();
-    float rad = spline->rad();
-    float len = spline->len();
+    float x = path->x();
+    float y = path->y();
+    float rot = path->rot();
+    float rad = path->rad();
+    float len = path->len();
 
     // calculate start- and span-angle
     float startAngle, spanAngle;
@@ -357,7 +381,7 @@ void MainWindow::drawSpline(QPainter *painter, OmsiSpline *spline, OmsiMapTile *
             (((mapHeight - 1) - tile->y()) * 300) + (300 - topLeftY),
             width,
             height
-        );
+            );
 
         // draw arc
         painter->drawArc(rect, startAngle, spanAngle);

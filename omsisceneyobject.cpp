@@ -44,7 +44,7 @@ bool OmsiSceneryobject::exists() {
     return f.exists();
 }
 
-QList<OmsiSpline *> OmsiSceneryobject::pathList() {
+QList<OmsiPath *> OmsiSceneryobject::pathList() {
     QFile f(_fileName);
     if(!f.exists())
         return {};
@@ -55,14 +55,15 @@ QList<OmsiSpline *> OmsiSceneryobject::pathList() {
     QTextStream s(&f);
     s.setEncoding(QStringConverter::Utf8);
 
-    QList<OmsiSpline *> result;
+    QList<OmsiPath *> result;
 
     while(!s.atEnd()) {
         QString line = s.readLine();
 
         if(line == "[path]") {
-            int x, y, rot, rad, len;
-            bool ok[5];
+            float x, y, rot, rad, len;
+            int type;
+            bool ok[6];
 
             x = s.readLine().toFloat(&ok[0]);
             y = s.readLine().toFloat(&ok[1]);
@@ -71,10 +72,14 @@ QList<OmsiSpline *> OmsiSceneryobject::pathList() {
             rad = s.readLine().toFloat(&ok[3]);
             len = s.readLine().toFloat(&ok[4]);
 
-            if(!ok[0] || !ok[1] || !ok[2] || !ok[3] || !ok[4])
+            s.readLine();
+            s.readLine();
+            type = s.readLine().toInt(&ok[5]);
+
+            if(!ok[0] || !ok[1] || !ok[2] || !ok[3] || !ok[4] || !ok[5])
                 continue;
 
-            OmsiSpline *spline = new OmsiSpline("<PATH>", x, y, rot, len, rad);
+            OmsiPath *spline = new OmsiPath(x, y, rot, len, rad, type);
             result << spline;
         }
     }

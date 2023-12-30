@@ -11,6 +11,7 @@ CONFIG += c++17
 SOURCES += \
     OmsiMap.cpp \
     OmsiMapTile.cpp \
+    OmsiPath.cpp \
     OmsiSpline.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -19,6 +20,7 @@ SOURCES += \
 HEADERS += \
     OmsiMap.h \
     OmsiMapTile.h \
+    OmsiPath.h \
     OmsiSpline.h \
     mainwindow.h \
     omsisceneyobject.h

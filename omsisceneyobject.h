@@ -1,7 +1,7 @@
 #ifndef OmsiSceneryobject_H
 #define OmsiSceneryobject_H
 
-#include "OmsiSpline.h"
+#include "OmsiPath.h"
 
 #include <QtCore>
 
@@ -25,7 +25,7 @@ public:
 
     bool exists();
 
-    QList<OmsiSpline *> pathList();
+    QList<OmsiPath *> pathList();
 
 private:
     float _x, _y, _rot;
