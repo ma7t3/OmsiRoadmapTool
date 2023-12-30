@@ -204,11 +204,9 @@ void MainWindow::on_pbStart_clicked() {
                     continue;
                 }
 
-                if(id == "22639") {
-                    qDebug() << rot;
-                }
+                fileName.replace("\\", "/");
 
-                OmsiSpline *spline = new OmsiSpline(fileName, x, y, rot, len, rad);
+                OmsiSpline *spline = new OmsiSpline(omsiDir->path() + "/" + fileName, x, y, rot, len, rad);
                 tile->addSpline(spline);
             }
         }
@@ -227,16 +225,25 @@ void MainWindow::on_pbStart_clicked() {
     height = map->height() * 300;
 
     QPen streetPen(Qt::white, 5);
+    QPen railPen(Qt::gray, 2);
 
     QPixmap *pixmap = new QPixmap(width, height);
-    pixmap->fill(Qt::lightGray);
+    pixmap->fill(Qt::black);
 
     QPainter *painter = new QPainter(pixmap);
-    painter->setPen(streetPen);
+    painter->setRenderHint(QPainter::Antialiasing);
 
     int i = 0;
     foreach(OmsiMapTile *tile, map->tiles()) {
         foreach(OmsiSpline *spline, tile->splines()) {
+            int pathType = spline->pathType();
+            if(pathType == -1)
+                continue;
+            else if(pathType == 0)
+                painter->setPen(streetPen);
+            else if(pathType == 1)
+                painter->setPen(railPen);
+
             drawSpline(painter, spline, tile, map->height());
         }
         i++;
@@ -256,33 +263,39 @@ void MainWindow::on_pbStart_clicked() {
 }
 
 void MainWindow::drawSpline(QPainter *painter, OmsiSpline *spline, OmsiMapTile *tile, int mapHeight) {
+    // get all values from spline
     float x = spline->x();
     float y = spline->y();
     float rot = spline->rot();
     float rad = spline->rad();
     float len = spline->len();
 
+    // calculate start- and span-angle
     float startAngle, spanAngle;
     startAngle = - (rot * 16) + 180*16;
     spanAngle  = - ((len / rad) * (180 / 3.141592654) * 16);
 
+    // if radius is not zero (that means, it's a curve)
     if(rad != 0) {
 
-        // rotate by 180 deg for left-curves
+        // rotate by 180 deg (for left-curves)
         if(rad < 0)
             startAngle += 180*16;
 
+        // calculate square
         float alpha = startAngle / 16;
 
         float centerX, centerY;
         centerX = x - (qCos(qDegreesToRadians(alpha)) * qAbs(rad));
         centerY = y - (qSin(qDegreesToRadians(alpha)) * qAbs(rad));
-
-        float topLeftX = centerX - rad;
-        float topLeftY = centerY + rad;
         float width = 2 * rad;
         float height = 2 * rad;
 
+        // determine top left corner
+        float topLeftX = centerX - rad;
+        float topLeftY = centerY + rad;
+
+        // define square
         QRect rect(
             (tile->x() * 300) + topLeftX,
             (((mapHeight - 1) - tile->y()) * 300) + (300 - topLeftY),
@@ -290,11 +303,16 @@ void MainWindow::drawSpline(QPainter *painter, OmsiSpline *spline, OmsiMapTile *
             height
         );
 
-        //painter->drawRect(rect);
+        // draw arc
         painter->drawArc(rect, startAngle, spanAngle);
     } else {
+        // else (radius equals 0), means, we just want to draw a straight line
+
+        // determine end coordinates
         float endX = x + (len * qSin(qDegreesToRadians(rot)));
         float endY = y + (len * qCos(qDegreesToRadians(rot)));
+
+        // draw line
         painter->drawLine(
             (tile->x() * 300) + x,
             (((mapHeight - 1) - tile->y()) * 300) + (300 - y),

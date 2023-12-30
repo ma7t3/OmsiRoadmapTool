@@ -27,6 +27,10 @@ public:
     QString fileName() const;
     void setFileName(const QString &newFileName);
 
+    bool exists();
+
+    int pathType();
+
 private:
     float _x, _y, _rot, _rad, _len;
     QString _fileName;

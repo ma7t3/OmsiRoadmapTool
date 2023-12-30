@@ -56,3 +56,64 @@ QString OmsiSpline::fileName() const {
 void OmsiSpline::setFileName(const QString &newFileName) {
     _fileName = newFileName;
 }
+
+bool OmsiSpline::exists() {
+    QFile f(_fileName);
+    return f.exists();
+}
+
+int OmsiSpline::pathType() {
+    QFile f(_fileName);
+    if(!f.exists())
+        return -1;
+
+    if(!f.open(QIODevice::ReadOnly))
+        return -1;
+
+    QTextStream s(&f);
+    s.setEncoding(QStringConverter::Utf8);
+
+    int pathType = -1;
+
+    while(!s.atEnd()) {
+        QString line = s.readLine();
+
+        if(line == "[path]") {
+            QString strType = s.readLine();
+
+            bool ok;
+            int type = strType.toInt(&ok);
+            if(!ok)
+                continue;
+
+            if(type == 0)
+                pathType = 0;
+            else if(type == 2 && pathType == -1)
+                pathType = 1;
+        }
+    }
+
+    return pathType;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
