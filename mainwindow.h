@@ -29,6 +29,7 @@ private slots:
 
     void drawSpline(QPainter *, OmsiSpline *, OmsiMapTile *, int height);
     void drawPath(QPainter *, OmsiPath *, OmsiMapTile *, int height);
+    void drawBusstop(QPainter *, OmsiSceneryobject *, OmsiMapTile *, int height);
 
     void log(QString);
 

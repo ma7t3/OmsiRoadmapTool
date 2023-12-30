@@ -248,7 +248,7 @@ void MainWindow::on_pbStart_clicked() {
 
     log("Finished loading map!");
 
-    log("drawing image...");
+    log("drawing paths...");
 
     ui->progressBar->setValue(0);
 
@@ -286,11 +286,27 @@ void MainWindow::on_pbStart_clicked() {
 
                 drawPath(painter, path, tile, map->height());
             }
+
+            if(object->fileName() == omsiDir->path() + "/Sceneryobjects/Generic/bus_stop.sco")
+                drawBusstop(painter, object, tile, map->height());
         }
 
         i++;
         ui->progressBar->setValue(i);
         qApp->processEvents();
+    }
+
+    log("drawing busstops...");
+
+    i = 0;
+    foreach(OmsiMapTile *tile, map->tiles()) {
+        foreach(OmsiSceneryobject *object, tile->objects()) {
+            if(object->fileName() == omsiDir->path() + "/Sceneryobjects/Generic/bus_stop.sco")
+                drawBusstop(painter, object, tile, map->height());
+        i++;
+        ui->progressBar->setValue(i);
+        qApp->processEvents();
+        }
     }
 
     log("saving image to file...");
@@ -398,6 +414,21 @@ void MainWindow::drawPath(QPainter *painter, OmsiPath *path, OmsiMapTile *tile, 
             (((mapHeight - 1) - tile->y()) * 300) + (300 - endY)
         );
     }
+}
+
+void MainWindow::drawBusstop(QPainter *painter, OmsiSceneryobject *object, OmsiMapTile *tile, int height) {
+    QPen busstopPen(QColor("#4080ff"), 12);
+    painter->setPen(busstopPen);
+
+    QFont busstopLabelFont("Open Sans", 26, 700);
+    painter->setFont(busstopLabelFont);
+
+    float x, y;
+    x = (tile->x()) * 300 + object->x();
+    y = (((height - 1) - tile->y()) * 300) + (300 - object->y());
+
+    painter->drawEllipse(x - 6, y - 6, 12, 12);
+    painter->drawText(QPoint(x + 15, y + 10), "Label");
 }
 
 void MainWindow::log(QString message) {
