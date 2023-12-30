@@ -1,4 +1,4 @@
-#include "OmsiSceneyobject.h"
+#include "OmsiSceneryobject.h"
 
 OmsiSceneryobject::OmsiSceneryobject(QString fileName, float x, float y, float rot) :
     _x(x),

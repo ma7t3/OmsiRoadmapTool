@@ -2,7 +2,7 @@
 #define OMSIMAPTILE_H
 
 #include "OmsiSpline.h"
-#include "OmsiSceneyobject.h"
+#include "OmsiSceneryobject.h"
 
 #include <QString>
 
@@ -24,7 +24,7 @@ public:
     QList<OmsiSpline *> splines() const;
     void setSplines(const QList<OmsiSpline *> &newSplines);
 
-    void addSceneryobject(OmsiSceneryobject *);
+    void addObject(OmsiSceneryobject *);
     QList<OmsiSceneryobject *> objects() const;
     void setObjects(const QList<OmsiSceneryobject *> &newObjects);
 

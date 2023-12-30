@@ -1,5 +1,5 @@
-#ifndef OmsiSceneryobject_H
-#define OmsiSceneryobject_H
+#ifndef OMSISCENERYOBJECT_H
+#define OMSISCENERYOBJECT_H
 
 #include "OmsiPath.h"
 
@@ -32,4 +32,4 @@ private:
     QString _fileName;
 };
 
-#endif // OmsiSceneryobject_H
+#endif // OMSISCENERYOBJECT_H

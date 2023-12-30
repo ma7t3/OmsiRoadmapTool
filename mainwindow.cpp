@@ -4,7 +4,7 @@
 #include "OmsiMap.h"
 #include "OmsiMapTile.h"
 #include "OmsiSpline.h"
-#include "omsisceneyobject.h"
+#include "OmsiSceneryobject.h"
 #include "OmsiPath.h"
 
 #include <QMessageBox>
@@ -241,7 +241,7 @@ void MainWindow::on_pbStart_clicked() {
                 fileName.replace("\\", "/");
 
                 OmsiSceneryobject *object = new OmsiSceneryobject(omsiDir->path() + "/" + fileName, x, y, rot);
-                tile->addSceneryobject(object);
+                tile->addObject(object);
             }
         }
     }

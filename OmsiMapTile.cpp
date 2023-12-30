@@ -42,7 +42,7 @@ void OmsiMapTile::setSplines(const QList<OmsiSpline *> &newSplines) {
     _splines = newSplines;
 }
 
-void OmsiMapTile::addSceneryobject(OmsiSceneryobject *object) {
+void OmsiMapTile::addObject(OmsiSceneryobject *object) {
     _objects << object;
 }
 
