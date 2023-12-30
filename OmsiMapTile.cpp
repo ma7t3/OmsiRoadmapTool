@@ -41,3 +41,15 @@ QList<OmsiSpline *> OmsiMapTile::splines() const {
 void OmsiMapTile::setSplines(const QList<OmsiSpline *> &newSplines) {
     _splines = newSplines;
 }
+
+void OmsiMapTile::addSceneryobject(OmsiSceneryobject *object) {
+    _objects << object;
+}
+
+QList<OmsiSceneryobject *> OmsiMapTile::objects() const {
+    return _objects;
+}
+
+void OmsiMapTile::setObjects(const QList<OmsiSceneryobject *> &newObjects) {
+    _objects = newObjects;
+}

@@ -63,6 +63,9 @@ bool OmsiSpline::exists() {
 }
 
 int OmsiSpline::pathType() {
+    if(_fileName == "<PATH>")
+        return 0;
+
     QFile f(_fileName);
     if(!f.exists())
         return -1;

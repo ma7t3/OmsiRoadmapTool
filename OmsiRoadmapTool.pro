@@ -13,13 +13,15 @@ SOURCES += \
     OmsiMapTile.cpp \
     OmsiSpline.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    omsisceneyobject.cpp
 
 HEADERS += \
     OmsiMap.h \
     OmsiMapTile.h \
     OmsiSpline.h \
-    mainwindow.h
+    mainwindow.h \
+    omsisceneyobject.h
 
 FORMS += \
     mainwindow.ui

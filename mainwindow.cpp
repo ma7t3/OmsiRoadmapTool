@@ -4,6 +4,7 @@
 #include "OmsiMap.h"
 #include "OmsiMapTile.h"
 #include "OmsiSpline.h"
+#include "omsisceneyobject.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -177,6 +178,15 @@ void MainWindow::on_pbStart_clicked() {
          * length
          * radius
          *
+         * [object]
+         * 0
+         * filePath
+         * ID
+         * x
+         * y
+         * z
+         * rot
+         *
          * */
 
         while(!s.atEnd()) {
@@ -208,6 +218,31 @@ void MainWindow::on_pbStart_clicked() {
 
                 OmsiSpline *spline = new OmsiSpline(omsiDir->path() + "/" + fileName, x, y, rot, len, rad);
                 tile->addSpline(spline);
+            }
+
+            if(line == "[object]") {
+                float x, y, rot, rad, len;
+                QString fileName, id;
+
+                bool ok[3];
+
+                s.readLine();
+                fileName = s.readLine();
+                id = s.readLine();
+                x = s.readLine().toFloat(&ok[0]);
+                y = s.readLine().toFloat(&ok[1]);
+                s.readLine();
+                rot = s.readLine().toFloat(&ok[2]);
+
+                if(!ok[0] || !ok[1] || !ok[2]) {
+                    log(tr("Bad Object - No. %1").arg(id));
+                    continue;
+                }
+
+                fileName.replace("\\", "/");
+
+                OmsiSceneryobject *object = new OmsiSceneryobject(omsiDir->path() + "/" + fileName, x, y, rot);
+                tile->addSceneryobject(object);
             }
         }
     }
@@ -246,6 +281,27 @@ void MainWindow::on_pbStart_clicked() {
 
             drawSpline(painter, spline, tile, map->height());
         }
+
+        painter->setPen(streetPen);
+        foreach(OmsiSceneryobject *object, tile->objects()) {
+            qDebug() << object->rot();
+            QList<OmsiSpline *> pathes = object->pathList();
+            foreach(OmsiSpline *path, pathes) {
+
+                // adjust coordinates
+                float x = path->x(), y = path->y(), objRot = 360 - object->rot();
+
+                float newX = (x * (qCos(qDegreesToRadians(objRot))) - (y * qSin(qDegreesToRadians(objRot))));
+                float newY = (x * (qSin(qDegreesToRadians(objRot))) + (y * qCos(qDegreesToRadians(objRot))));
+
+                path->setX(object->x() + newX);
+                path->setY(object->y() + newY);
+                path->setRot(path->rot() - objRot);
+
+                drawSpline(painter, path, tile, map->height());
+            }
+        }
+
         i++;
         ui->progressBar->setValue(i);
         qApp->processEvents();
