@@ -15,6 +15,8 @@
 #include <QPixmap>
 #include <QPainter>
 
+#include <QDesktopServices>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -318,6 +320,9 @@ void MainWindow::on_pbStart_clicked() {
     ui->progressBar->setValue(1);
 
     log("saved image to PNG!");
+
+    qApp->thread()->msleep(100);
+    QDesktopServices::openUrl(ui->leTargetPath->text());
 }
 
 void MainWindow::drawSpline(QPainter *painter, OmsiSpline *spline, OmsiMapTile *tile, int mapHeight) {
