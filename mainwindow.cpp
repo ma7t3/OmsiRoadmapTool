@@ -259,24 +259,74 @@ void MainWindow::on_pbStart_clicked() {
                 tile->addObject(object);
             }
         }
+    }
 
-        foreach(OmsiMapTile *tile, map->tiles()) {
-            foreach(OmsiSceneryobject *object, tile->objects()) {
-                if(object->fileName() == omsiDir->path() + "/Sceneryobjects/Generic/bus_stop.sco") {
+    foreach(OmsiMapTile *tile, map->tiles()) {
+        foreach(OmsiSceneryobject *object, tile->objects()) {
+            if(object->fileName() == omsiDir->path() + "/Sceneryobjects/Generic/bus_stop.sco") {
 
-                    float x, y;
-                    x = (tile->x()) * 300 + object->x();
-                    y = (((map->height() - 1) - tile->y()) * 300) + (300 - object->y());
+                float x, y;
+                x = (tile->x()) * 300 + object->x();
+                y = (((map->height() - 1) - tile->y()) * 300) + (300 - object->y());
 
-                    QPoint p(x, y);
-                    QPoint lp(x + 15, y + 10);
-                    QString label = object->stringAt(0);
-                    map->addBusstop(p);
-                    map->addBusstopLabel(QPair<QPoint, QString>(lp, label));
-                }
+                QPoint p(x, y);
+                QPoint lp(x + 15, y + 10);
+                QString label = object->stringAt(0);
+                map->addBusstop(p);
+                map->addBusstopLabel(QPair<QPoint, QString>(lp, label));
             }
         }
     }
+
+    // join busstop labels
+    QList<QPair<QPoint, QString>> allLabels = map->busstopLabels();
+    QList<QPair<QPoint, QString>> filteredLabels = {};
+
+    QStringList uniqueNames;
+
+    for(int i = 0; i < allLabels.count(); i++) {
+        bool found = false;
+        foreach(QString current, uniqueNames) {
+            if(current == allLabels[i].second) {
+                found = true;
+                break;
+            }
+        }
+        if(!found)
+            uniqueNames << allLabels[i].second;
+    }
+
+
+    foreach(QString currentName, uniqueNames) {
+        float newX = 0;
+        QList<float> newY;
+
+        for(int i = 0; i < allLabels.count(); i++) {
+            QPair<QPoint, QString> currentLabel = allLabels[i];
+
+            if(currentLabel.second != currentName)
+                continue;
+
+            if(newY.empty()) {
+                newX = currentLabel.first.x();
+            } else {
+                if(currentLabel.first.x() > newX)
+                    newX = currentLabel.first.x();
+            }
+
+            newY << currentLabel.first.y();
+        }
+
+        float newYSum = 0;
+        foreach(int c, newY)
+            newYSum += c;
+
+        float newYAvg = newYSum / newY.count();
+
+        filteredLabels << QPair<QPoint, QString>(QPoint(newX, newYAvg), currentName);
+    }
+
+    map->setBusstopLabels(filteredLabels);
 
     log("Finished loading map!");
 
@@ -457,12 +507,22 @@ void MainWindow::drawBusstop(QPainter *painter, QPoint point) {
 }
 
 void MainWindow::drawBusstopLabel(QPainter *painter, QPoint point, QString label) {
-    QPen busstopLabelPen(QColor("#ffc000"));
+    QPen busstopLabelOutlinePen(Qt::black);
+    QPen busstopLabelPen(QColor("#ffc000"), 2);
 
+    QFont busstopLabelOutlineFont("Open Sans", 26, 700);
     QFont busstopLabelFont("Open Sans", 26, 700);
-    painter->setFont(busstopLabelFont);
+
+    painter->setPen(busstopLabelOutlinePen);
+    painter->setFont(busstopLabelOutlineFont);
+
+    painter->drawText(point.x() + 2, point.y() + 2, label);
+    painter->drawText(point.x() + 2, point.y() - 2, label);
+    painter->drawText(point.x() - 2, point.y() + 2, label);
+    painter->drawText(point.x() - 2, point.y() - 2, label);
 
     painter->setPen(busstopLabelPen);
+    painter->setFont(busstopLabelFont);
     painter->drawText(point, label);
 }
 
