@@ -40,6 +40,8 @@ private:
     QSettings *settings;
     QDir *omsiDir;
 
-    int RESOLUTION = 256;
+    int RESOLUTION = 300;
+
+    QFont busstopLabelFont;
 };
 #endif // MAINWINDOW_H

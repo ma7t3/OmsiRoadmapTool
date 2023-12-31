@@ -19,7 +19,8 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::MainWindow),
+    busstopLabelFont("Open Sans", 26, 700)
 {
     ui->setupUi(this);
 
@@ -326,9 +327,91 @@ void MainWindow::on_pbStart_clicked() {
         filteredLabels << QPair<QPoint, QString>(QPoint(newX, newYAvg), currentName);
     }
 
-    map->setBusstopLabels(filteredLabels);
-
     log("Finished loading map!");
+    log("placing busstop labels...");
+    ui->progressBar->setValue(0);
+    ui->progressBar->setMaximum(filteredLabels.count());
+
+    qApp->processEvents();
+
+    // move labels (anti collision)
+    // for each label
+    for(int i = 0; i < filteredLabels.count(); i++) {
+        ui->progressBar->setValue(i);
+        qApp->processEvents();
+        QPair<QPoint, QString> currentLabel = filteredLabels[i];
+
+        // define new points
+        QPoint new1 = currentLabel.first, new2 = currentLabel.first;
+
+        // as long as it collides with anything...
+        while(true) {
+
+            bool collision[2] = {false, false};
+
+            // check collision with every other label
+            for(int j = 0; j < filteredLabels.count(); j++) {
+                QPair<QPoint, QString> currentCompareLabel = filteredLabels[j];
+
+                // don't compare with itself
+                if(i == j)
+                    continue;
+
+                QFontMetrics fm(busstopLabelFont);
+
+                // nährungsweise (schnell)
+                int currentWidth = fm.averageCharWidth() * currentLabel.second.length();
+                int currentCompareWidth = fm.averageCharWidth() * currentLabel.second.length();
+
+                // exakt (langsam)
+                /*int currentWidth = fm.horizontalAdvance(currentLabel.second);
+                int currentCompareWidth = fm.horizontalAdvance(currentCompareLabel.second);*/
+
+                // don't compare if they have enough space horizontally
+                int xSpace = new1.x() - currentCompareLabel.first.x();
+                if(xSpace > 0) {
+                    if(qAbs(xSpace) >= currentCompareWidth)
+                        continue;
+                } else {
+                    if(qAbs(xSpace) >= currentWidth)
+                        continue;
+                }
+
+                // calculate y-axis-space
+                int ySpace1 = qAbs(new1.y() - currentCompareLabel.first.y());
+                int ySpace2 = qAbs(new2.y() - currentCompareLabel.first.y());
+
+                // if they don't have enough space, save collision
+                if(ySpace1 < 35) {
+                    collision[0] = true;
+                }
+
+                if(ySpace2 < 35) {
+                    collision[1] = true;
+                }
+            }
+
+            // if there was no collision at all, save positoin and go to next label
+            if(!collision[0]) {
+                currentLabel.first = new1;
+                break;
+            }
+
+            if(!collision[1]) {
+                currentLabel.first = new2;
+                break;
+            }
+
+            // else move by one pixel and check again
+            new1.setY(new1.y() + 1);
+            new2.setY(new2.y() - 1);
+        }
+
+        filteredLabels[i] = currentLabel;
+    }
+
+    map->setBusstopLabels(filteredLabels);
+    //map->setBusstopLabels(filteredLabels);
 
     log("drawing paths...");
 
@@ -511,7 +594,6 @@ void MainWindow::drawBusstopLabel(QPainter *painter, QPoint point, QString label
     QPen busstopLabelPen(QColor("#ffc000"), 2);
 
     QFont busstopLabelOutlineFont("Open Sans", 26, 700);
-    QFont busstopLabelFont("Open Sans", 26, 700);
 
     painter->setPen(busstopLabelOutlinePen);
     painter->setFont(busstopLabelOutlineFont);
