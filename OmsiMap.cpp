@@ -63,6 +63,18 @@ void OmsiMap::addBusstopLabel(const QPair<QPoint, QString> busstopLabel) {
     _busstopLabels << busstopLabel;
 }
 
+QList<QPair<QPoint, float> > OmsiMap::trees() const {
+    return _trees;
+}
+
+void OmsiMap::setTrees(const QList<QPair<QPoint, float> > &newTrees) {
+    _trees = newTrees;
+}
+
+void OmsiMap::addTree(const QPair<QPoint, float> tree) {
+    _trees << tree;
+}
+
 
 
 

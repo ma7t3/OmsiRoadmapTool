@@ -28,10 +28,15 @@ public:
     void setBusstopLabels(const QList<QPair<QPoint, QString>> &newBusstopLabels);
     void addBusstopLabel(const QPair<QPoint, QString>);
 
+    QList<QPair<QPoint, float> > trees() const;
+    void setTrees(const QList<QPair<QPoint, float> > &newTrees);
+    void addTree(const QPair<QPoint, float>);
+
 private:
     QList<OmsiMapTile *> _tiles;
     QList<QPoint> _busstops;
     QList<QPair<QPoint, QString>> _busstopLabels;
+    QList<QPair<QPoint, float>> _trees;
 };
 
 #endif // OMSIMAP_H
