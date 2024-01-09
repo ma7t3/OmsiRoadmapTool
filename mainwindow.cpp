@@ -152,6 +152,7 @@ void MainWindow::on_pbStart_clicked() {
         ui->progressBar->setValue(currentTile);
 
         QFile f(mapDir.path() + "/" + tile->fileName());
+        QFile fterrain(mapDir.path() + "/" + tile->fileName() + ".terrain");
         if(!f.exists()) {
             log(tr("Tile \"%1\" - file not found!").arg(tile->fileName()));
             qApp->processEvents();
@@ -260,6 +261,34 @@ void MainWindow::on_pbStart_clicked() {
                 tile->addObject(object);
             }
         }
+
+        f.close();
+
+        if(!fterrain.exists()) {
+            log(tr("Tile \"%1\" - terrain file not found!").arg(tile->fileName() + ".terrain"));
+            qApp->processEvents();
+            continue;
+        }
+
+        fterrain.open(QIODevice::ReadOnly);
+        QDataStream in(&fterrain);
+
+        in.setFloatingPointPrecision(QDataStream::SinglePrecision);
+        in.setByteOrder(QDataStream::LittleEndian);
+
+        float nul;
+        in >> nul;
+
+        QList<float> values;
+        while(!in.atEnd()) {
+            float value;
+            in >> value;
+            values << value;
+        }
+
+        tile->setTerrain(values);
+
+        fterrain.close();
     }
 
     foreach(OmsiMapTile *tile, map->tiles()) {
@@ -424,10 +453,47 @@ void MainWindow::on_pbStart_clicked() {
     height = map->height() * 300;
 
     QPixmap *pixmap = new QPixmap(width, height);
-    pixmap->fill(Qt::black);
+    pixmap->fill(QColor("#6b8060"));
 
     QPainter *painter = new QPainter(pixmap);
     painter->setRenderHint(QPainter::Antialiasing);
+
+
+    QList<QColor> colors;
+    colors << QColor("#6b8060");
+    colors << QColor("#91b380");
+    colors << QColor("#cfe6c3");
+    colors << QColor("#dee6c3");
+    colors << QColor("#e6dfc3");
+    colors << QColor("#ddba94");
+    colors << QColor("#ab8152");
+    colors << QColor("#7a4732");
+
+    foreach(OmsiMapTile *tile, map->tiles()) {
+        // drawTerrain
+        for(int i = 0; i < 61; i++) {
+            for(int j = 0; j < 61; j++) {
+                float pixelValue = tile->terrain(i, j);
+
+                int colorIndex;
+                if(pixelValue < 0)
+                    colorIndex = 0;
+                else if(pixelValue > 7 * ui->hsTerrainFactor->value())
+                    colorIndex = 7;
+                else
+                    colorIndex = pixelValue / ui->hsTerrainFactor->value();
+
+                int x = tile->x() * 300 + i*4.918;
+                int y = (((map->height() - 1) - tile->y()) * 300) + j*4.918;
+
+                painter->setBrush(colors[colorIndex]);
+                painter->setPen(Qt::NoPen);
+                painter->drawRect(x, y, 5, 5);
+            }
+        }
+    }
+
+    painter->setBrush(Qt::NoBrush);
 
     int i = 0;
     foreach(OmsiMapTile *tile, map->tiles()) {

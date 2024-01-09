@@ -53,3 +53,27 @@ QList<OmsiSceneryobject *> OmsiMapTile::objects() const {
 void OmsiMapTile::setObjects(const QList<OmsiSceneryobject *> &newObjects) {
     _objects = newObjects;
 }
+
+float OmsiMapTile::terrain(const int &x, const int &y) {
+    if(x > 61 || y > 61)
+        return 0;
+
+    return _terrain[x][y];
+}
+
+void OmsiMapTile::setTerrain(const QList<float> &newTerrain) {
+    float originalArray[61][61];
+
+    for(int i = 0; i < 61; ++i) {
+        for(int j = 0; j < 61; ++j) {
+            originalArray[i][j] = newTerrain[i * 61 + j];
+        }
+    }
+
+    // rotate
+    for (int i = 0; i < 61; ++i) {
+        for (int j = 0; j < 61; ++j) {
+            _terrain[j][61 - 1 - i] = originalArray[i][j];
+        }
+    }
+}

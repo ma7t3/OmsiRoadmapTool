@@ -124,6 +124,16 @@
      </widget>
     </item>
     <item>
+     <widget class="QSlider" name="hsTerrainFactor">
+      <property name="maximum">
+       <number>50</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QListWidget" name="lwLog"/>
     </item>
    </layout>

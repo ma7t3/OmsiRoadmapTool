@@ -28,12 +28,16 @@ public:
     QList<OmsiSceneryobject *> objects() const;
     void setObjects(const QList<OmsiSceneryobject *> &newObjects);
 
+    float terrain(const int &x, const int &y);
+    void setTerrain(const QList<float> &newTerrain);
+
 private:
     int _x, _y;
     QString _fileName;
 
     QList<OmsiSpline *> _splines;
     QList<OmsiSceneryobject *> _objects;
+    float _terrain[61][61];
 };
 
 #endif // OMSIMAPTILE_H
