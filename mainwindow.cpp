@@ -153,6 +153,8 @@ void MainWindow::on_pbStart_clicked() {
 
         QFile f(mapDir.path() + "/" + tile->fileName());
         QFile fterrain(mapDir.path() + "/" + tile->fileName() + ".terrain");
+        QFile fwater(mapDir.path() + "/" + tile->fileName() + ".water");
+
         if(!f.exists()) {
             log(tr("Tile \"%1\" - file not found!").arg(tile->fileName()));
             qApp->processEvents();
@@ -197,6 +199,10 @@ void MainWindow::on_pbStart_clicked() {
 
         while(!s.atEnd()) {
             QString line = s.readLine();
+
+            if(line == "[water]")
+                tile->setWater({-5, -5, -5, -5});
+
             if(line == "[spline]" || line == "[spline_h]") {
                 float x, y, rot, rad, len;
                 QString fileName, id;
@@ -264,31 +270,58 @@ void MainWindow::on_pbStart_clicked() {
 
         f.close();
 
-        if(!fterrain.exists()) {
+        if(fterrain.exists()) {
+            fterrain.open(QIODevice::ReadOnly);
+            QDataStream in(&fterrain);
+
+            in.setFloatingPointPrecision(QDataStream::SinglePrecision);
+            in.setByteOrder(QDataStream::LittleEndian);
+
+            float nul;
+            in >> nul;
+
+            QList<float> values;
+            while(!in.atEnd()) {
+                float value;
+                in >> value;
+                values << value;
+            }
+
+            tile->setTerrain(values);
+
+            fterrain.close();
+        } else {
             log(tr("Tile \"%1\" - terrain file not found!").arg(tile->fileName() + ".terrain"));
             qApp->processEvents();
-            continue;
         }
 
-        fterrain.open(QIODevice::ReadOnly);
-        QDataStream in(&fterrain);
+        if(fwater.exists() && tile->hasWater()) {
+            fwater.open(QIODevice::ReadOnly);
+            QDataStream in(&fwater);
 
-        in.setFloatingPointPrecision(QDataStream::SinglePrecision);
-        in.setByteOrder(QDataStream::LittleEndian);
+            in.setFloatingPointPrecision(QDataStream::SinglePrecision);
+            in.setByteOrder(QDataStream::LittleEndian);
 
-        float nul;
-        in >> nul;
+            float nul;
+            in >> nul;
 
-        QList<float> values;
-        while(!in.atEnd()) {
-            float value;
-            in >> value;
-            values << value;
+            QList<float> values;
+            while(!in.atEnd()) {
+                float value;
+                in >> value;
+                values << value;
+            }
+
+            tile->setWater(values);
+
+            fwater.close();
+        } else {
+            if(tile->hasWater())
+                log(tr("Tile \"%1\" - water file not found!").arg(tile->fileName() + ".water"));
+
+            qApp->processEvents();
         }
 
-        tile->setTerrain(values);
-
-        fterrain.close();
     }
 
     foreach(OmsiMapTile *tile, map->tiles()) {
@@ -475,18 +508,23 @@ void MainWindow::on_pbStart_clicked() {
             for(int j = 0; j < 61; j++) {
                 float pixelValue = tile->terrain(i, j);
 
-                int colorIndex;
-                if(pixelValue < 0)
-                    colorIndex = 0;
-                else if(pixelValue > 7 * ui->hsTerrainFactor->value())
-                    colorIndex = 7;
-                else
-                    colorIndex = pixelValue / ui->hsTerrainFactor->value();
-
                 int x = tile->x() * 300 + i*4.918;
                 int y = (((map->height() - 1) - tile->y()) * 300) + j*4.918;
 
-                painter->setBrush(colors[colorIndex]);
+                if(pixelValue >= tile->water() || !tile->hasWater()) {
+                    int colorIndex;
+                    if(pixelValue < 0)
+                        colorIndex = 0;
+                    else if(pixelValue > 7 * ui->hsTerrainFactor->value())
+                        colorIndex = 7;
+                    else
+                        colorIndex = pixelValue / ui->hsTerrainFactor->value();
+
+                    painter->setBrush(colors[colorIndex]);
+                } else {
+                    painter->setBrush(QColor(128, 192, 255));
+                }
+
                 painter->setPen(Qt::NoPen);
                 painter->drawRect(x, y, 5, 5);
             }

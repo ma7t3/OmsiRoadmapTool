@@ -77,3 +77,21 @@ void OmsiMapTile::setTerrain(const QList<float> &newTerrain) {
         }
     }
 }
+
+float OmsiMapTile::water() {
+    return _waterSimple;
+}
+
+void OmsiMapTile::setWater(const QList<float> &newWater) {
+    _waterSimple = (newWater[0] + newWater[1] + newWater[2] + newWater[3]) / 4;
+    _hasWater = true;
+
+    /*_water[0][0] = newWater[1];
+    _water[0][1] = newWater[3];
+    _water[1][0] = newWater[0];
+    _water[0][1] = newWater[2];*/
+}
+
+bool OmsiMapTile::hasWater() const {
+    return _hasWater;
+}

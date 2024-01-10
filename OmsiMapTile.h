@@ -31,6 +31,11 @@ public:
     float terrain(const int &x, const int &y);
     void setTerrain(const QList<float> &newTerrain);
 
+    float water();
+    void setWater(const QList<float> &newWater);
+
+    bool hasWater() const;
+
 private:
     int _x, _y;
     QString _fileName;
@@ -38,6 +43,10 @@ private:
     QList<OmsiSpline *> _splines;
     QList<OmsiSceneryobject *> _objects;
     float _terrain[61][61];
+
+    bool _hasWater = false;
+    float _water[2][2];
+    float _waterSimple;
 };
 
 #endif // OMSIMAPTILE_H
