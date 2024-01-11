@@ -12,6 +12,8 @@
 
 #include <QSettings>
 
+#include <QColorDialog>
+
 #include <QPixmap>
 #include <QPainter>
 
@@ -419,7 +421,7 @@ void MainWindow::on_pbStart_clicked() {
                 if(i == j)
                     continue;
 
-                QFontMetrics fm(busstopLabelFont);
+                QFontMetrics fm(ui->fcbBusstopFont->currentFont());
 
                 // nährungsweise (schnell)
                 int currentWidth = fm.averageCharWidth() * currentLabel.second.length();
@@ -486,7 +488,11 @@ void MainWindow::on_pbStart_clicked() {
     height = map->height() * 300;
 
     QPixmap *pixmap = new QPixmap(width, height);
-    pixmap->fill(QColor("#6b8060"));
+
+    if(ui->rbTerrainHeight->isChecked())
+        pixmap->fill(QColor("#6b8060"));
+    else
+        pixmap->fill(QColor(ui->pbBackgroundColor->styleSheet().remove("background-color: ")));
 
     QPainter *painter = new QPainter(pixmap);
     painter->setRenderHint(QPainter::Antialiasing);
@@ -511,7 +517,7 @@ void MainWindow::on_pbStart_clicked() {
                 int x = tile->x() * 300 + i*4.918;
                 int y = (((map->height() - 1) - tile->y()) * 300) + j*4.918;
 
-                if(pixelValue >= tile->water() || !tile->hasWater()) {
+                if(pixelValue >= tile->water() || !tile->hasWater() || !ui->cbDrawWater) {
                     int colorIndex;
                     if(pixelValue < 0)
                         colorIndex = 0;
@@ -520,9 +526,13 @@ void MainWindow::on_pbStart_clicked() {
                     else
                         colorIndex = pixelValue / ui->hsTerrainFactor->value();
 
+                    if(!ui->rbTerrainHeight->isChecked())
+                        continue;
+
                     painter->setBrush(colors[colorIndex]);
                 } else {
-                    painter->setBrush(QColor(128, 192, 255));
+                    if(ui->cbDrawWater->isChecked())
+                        painter->setBrush(QColor(ui->pbWaterColor->styleSheet().remove("background-color: ")));
                 }
 
                 painter->setPen(Qt::NoPen);
@@ -562,16 +572,20 @@ void MainWindow::on_pbStart_clicked() {
         qApp->processEvents();
     }
 
-    log("drawing busstops...");
+    if(ui->cbDrawBusstops->isChecked()) {
+        log("drawing busstops...");
 
-    foreach(QPoint busstop, map->busstops()) {
-        drawBusstop(painter, busstop);
-    }
+        foreach(QPoint busstop, map->busstops()) {
+            drawBusstop(painter, busstop);
+        }
 
-    QList<QPair<QPoint, QString>> labels = map->busstopLabels();
-    for(int i = 0; i < map->busstopLabels().count(); i++) {
-        QPair<QPoint, QString> label = labels[i];
-        drawBusstopLabel(painter, label.first, label.second);
+        if(ui->cbDrawBusstopsNames->isChecked()) {
+            QList<QPair<QPoint, QString>> labels = map->busstopLabels();
+            for(int i = 0; i < map->busstopLabels().count(); i++) {
+                QPair<QPoint, QString> label = labels[i];
+                drawBusstopLabel(painter, label.first, label.second);
+            }
+        }
     }
 
     log("saving image to file...");
@@ -615,8 +629,8 @@ void MainWindow::drawSpline(QPainter *painter, OmsiSpline *spline, OmsiMapTile *
 }
 
 void MainWindow::drawPath(QPainter *painter, OmsiPath *path, OmsiMapTile *tile, int mapHeight) {
-    QPen streetPen(Qt::white, 4);
-    QPen railPen(Qt::gray, 2);
+    QPen streetPen(QColor(ui->pbStreetColor->styleSheet().remove("background-color: ")), ui->sbPathWidthStreet->value());
+    QPen railPen(QColor(ui->pbRailColor->styleSheet().remove("background-color: ")), ui->sbPathWidthRail->value());
 
     if(path->type() == 0)
         painter->setPen(streetPen);
@@ -686,7 +700,7 @@ void MainWindow::drawPath(QPainter *painter, OmsiPath *path, OmsiMapTile *tile, 
 
 void MainWindow::drawBusstop(QPainter *painter, QPoint point) {
     QPen busstopPen(Qt::black, 6);
-    QBrush busstopBrush (QColor("#ffc000"));
+    QBrush busstopBrush(QColor(ui->pbBusstopColor->styleSheet().remove("background-color: ")));
     painter->setPen(busstopPen);
     painter->setBrush(busstopBrush);
 
@@ -695,20 +709,20 @@ void MainWindow::drawBusstop(QPainter *painter, QPoint point) {
 
 void MainWindow::drawBusstopLabel(QPainter *painter, QPoint point, QString label) {
     QPen busstopLabelOutlinePen(Qt::black);
-    QPen busstopLabelPen(QColor("#ffc000"), 2);
+    QPen busstopLabelPen(QColor(ui->pbBusstopColor->styleSheet().remove("background-color: ")), 2);
 
-    QFont busstopLabelOutlineFont("Open Sans", 26, 700);
+    //QFont busstopLabelOutlineFont(ui->fcbBusstopFont->currentFont(), 26, 700);
 
     painter->setPen(busstopLabelOutlinePen);
-    painter->setFont(busstopLabelOutlineFont);
+    painter->setFont(ui->fcbBusstopFont->currentFont());
 
-    painter->drawText(point.x() + 2, point.y() + 2, label);
-    painter->drawText(point.x() + 2, point.y() - 2, label);
-    painter->drawText(point.x() - 2, point.y() + 2, label);
-    painter->drawText(point.x() - 2, point.y() - 2, label);
+    painter->drawText(point.x() + 1, point.y() + 1, label);
+    painter->drawText(point.x() + 1, point.y() - 1, label);
+    painter->drawText(point.x() - 1, point.y() + 1, label);
+    painter->drawText(point.x() - 1, point.y() - 1, label);
 
     painter->setPen(busstopLabelPen);
-    painter->setFont(busstopLabelFont);
+    //painter->setFont(busstopLabelFont);
     painter->drawText(point, label);
 }
 
@@ -737,6 +751,49 @@ void MainWindow::log(QString message) {
 
 
 
+
+
+
+
+void MainWindow::on_pbStreetColor_clicked() {
+    QColor newColor = QColorDialog::getColor(ui->pbStreetColor->styleSheet().remove("background-color: "), this);
+    ui->pbStreetColor->setStyleSheet("background-color: " + newColor.name(QColor::HexRgb));
+}
+
+
+void MainWindow::on_pbRailColor_clicked() {
+    QColor newColor = QColorDialog::getColor(ui->pbRailColor->styleSheet().remove("background-color: "), this);
+    ui->pbRailColor->setStyleSheet("background-color: " + newColor.name(QColor::HexRgb));
+}
+
+
+void MainWindow::on_pbBackgroundColor_clicked() {
+    QColor newColor = QColorDialog::getColor(ui->pbBackgroundColor->styleSheet().remove("background-color: "), this);
+    ui->pbBackgroundColor->setStyleSheet("background-color: " + newColor.name(QColor::HexRgb));
+}
+
+
+void MainWindow::on_pbBusstopColor_clicked() {
+    QColor newColor = QColorDialog::getColor(ui->pbBusstopColor->styleSheet().remove("background-color: "), this);
+    ui->pbBusstopColor->setStyleSheet("background-color: " + newColor.name(QColor::HexRgb));
+}
+
+void MainWindow::on_pbWaterColor_clicked() {
+    QColor newColor = QColorDialog::getColor(ui->pbWaterColor->styleSheet().remove("background-color: "), this);
+    ui->pbWaterColor->setStyleSheet("background-color: " + newColor.name(QColor::HexRgb));
+}
+
+void MainWindow::on_cbDrawBusstops_stateChanged(int arg1) {
+    Q_UNUSED(arg1);
+    ui->cbDrawBusstopsNames->setEnabled(ui->cbDrawBusstops->isChecked());
+    on_cbDrawBusstopsNames_stateChanged(0);
+}
+
+
+void MainWindow::on_cbDrawBusstopsNames_stateChanged(int arg1) {
+    Q_UNUSED(arg1);
+    ui->fcbBusstopFont->setEnabled(ui->cbDrawBusstopsNames->isChecked());
+}
 
 
 

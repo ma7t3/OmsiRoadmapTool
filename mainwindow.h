@@ -34,6 +34,20 @@ private slots:
 
     void log(QString);
 
+    void on_pbStreetColor_clicked();
+
+    void on_pbRailColor_clicked();
+
+    void on_pbBackgroundColor_clicked();
+
+    void on_pbBusstopColor_clicked();
+
+    void on_cbDrawBusstops_stateChanged(int arg1);
+
+    void on_cbDrawBusstopsNames_stateChanged(int arg1);
+
+    void on_pbWaterColor_clicked();
+
 private:
     Ui::MainWindow *ui;
 
