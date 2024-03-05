@@ -61,7 +61,7 @@ QList<OmsiPath *> OmsiSceneryobject::pathList() {
     while(!s.atEnd()) {
         QString line = s.readLine();
 
-        if(line == "[path]") {
+        if(line == "[path]" || line == "[path_2]") {
             float x, y, rot, rad, len;
             int type;
             bool ok[6];

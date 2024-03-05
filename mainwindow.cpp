@@ -197,6 +197,23 @@ void MainWindow::on_pbStart_clicked() {
          * StrCount
          * Strings
          *
+         * [splineAttachement]
+         * 0
+         * filePath
+         * ID
+         * ????
+         * x
+         * y
+         * z
+         * rot
+         * .
+         * .
+         * Distance
+         * Range
+         * ?
+         * StrCount
+         * Strings
+         *
          * */
 
         while(!s.atEnd()) {
