@@ -6,6 +6,11 @@ OmsiMapTile::OmsiMapTile(int x, int y, QString fileName) :
     _fileName(fileName) {
 }
 
+OmsiMapTile::~OmsiMapTile() {
+    qDeleteAll(_splines);
+    qDeleteAll(_objects);
+}
+
 int OmsiMapTile::x() const {
     return _x;
 }

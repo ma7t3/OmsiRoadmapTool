@@ -5,6 +5,9 @@
 #include "OmsiSpline.h"
 #include "OmsiMapTile.h"
 
+
+#include "WorkerThread.h"
+
 #include <QMainWindow>
 #include <QDir>
 #include <QSettings>
@@ -26,11 +29,6 @@ private slots:
     void on_pbMapsReload_clicked();
     void on_pbTargetPathBrowse_clicked();
     void on_pbStart_clicked();
-
-    void drawSpline(QPainter *, OmsiSpline *, OmsiMapTile *, int height);
-    void drawPath(QPainter *, OmsiPath *, OmsiMapTile *, int height);
-    void drawBusstop(QPainter *, QPoint);
-    void drawBusstopLabel(QPainter *, QPoint, QString);
 
     void log(QString);
 
@@ -57,5 +55,7 @@ private:
     int RESOLUTION = 300;
 
     QFont busstopLabelFont;
+
+    WorkerThread *_workerThread;
 };
 #endif // MAINWINDOW_H

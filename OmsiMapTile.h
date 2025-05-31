@@ -10,6 +10,7 @@
 class OmsiMapTile {
 public:
     OmsiMapTile(int x, int y, QString fileName);
+    ~OmsiMapTile();
 
     int x() const;
     void setX(int newX);

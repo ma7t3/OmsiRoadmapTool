@@ -9,6 +9,8 @@ OmsiSpline::OmsiSpline(QString fileName, float x, float y, float rot, float len,
     _fileName(fileName) {
 }
 
+OmsiSpline::~OmsiSpline() {}
+
 float OmsiSpline::x() const {
     return _x;
 }
