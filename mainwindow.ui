@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QGroupBox" name="groupBox">
+     <widget class="QGroupBox" name="gbOmsiDir">
       <property name="title">
        <string>Omsi Dir</string>
       </property>
@@ -42,7 +42,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="groupBox_2">
+     <widget class="QGroupBox" name="gbMap">
       <property name="title">
        <string>Map</string>
       </property>
@@ -67,7 +67,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QGroupBox" name="groupBox_3">
+     <widget class="QGroupBox" name="gbTargetImage">
       <property name="title">
        <string>Target Image</string>
       </property>
@@ -96,7 +96,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QTabWidget" name="tabWidget">
+     <widget class="QTabWidget" name="twOptions">
       <property name="currentIndex">
        <number>0</number>
       </property>

@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->leOmsiDir->setText(omsiDir->path());
 
     connect(_workerThread, &WorkerThread::progressMaximumChanged, ui->progressBar, &QProgressBar::setMaximum);
-    connect(_workerThread, &WorkerThread::progressValueChanged, ui->progressBar, &QProgressBar::setValue);
+    connect(_workerThread, &WorkerThread::progressValueChanged,   ui->progressBar, &QProgressBar::setValue);
     connect(_workerThread, &WorkerThread::log, this, &MainWindow::log);
 
     on_pbMapsReload_clicked();
@@ -123,12 +123,19 @@ void MainWindow::on_pbStart_clicked() {
     _workerThread->setTerrainFactor(ui->hsTerrainFactor->value());
     _workerThread->setTargetImageFilePath(ui->leTargetPath->text());
     _workerThread->start();
+    updateUIEnabled(false);
 }
 
 void MainWindow::log(QString message) {
     ui->lwLog->addItem(message);
     ui->lwLog->scrollToBottom();
     ui->statusbar->showMessage(message);
+}
+
+void MainWindow::onWorkerFinished() {
+    ui->progressBar->setValue(0);
+    ui->progressBar->setMaximum(1);
+    updateUIEnabled(true);
 }
 
 void MainWindow::on_pbStreetColor_clicked() {
@@ -175,4 +182,12 @@ void MainWindow::on_pbShowLog_clicked() {
     const bool &current = ui->lwLog->isVisible();
     ui->lwLog->setVisible(!current);
     ui->pbShowLog->setText(current ? tr("Show Log") : tr("Hide Log"));
+}
+
+void MainWindow::updateUIEnabled(const bool &enable) {
+    ui->gbOmsiDir->setEnabled(enable);
+    ui->gbMap->setEnabled(enable);
+    ui->gbTargetImage->setEnabled(enable);
+    ui->twOptions->setEnabled(enable);
+    ui->pbStart->setEnabled(enable);
 }

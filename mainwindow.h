@@ -31,6 +31,8 @@ private slots:
 
     void log(QString);
 
+    void onWorkerFinished();
+
     void on_pbStreetColor_clicked();
 
     void on_pbRailColor_clicked();
@@ -46,6 +48,8 @@ private slots:
     void on_pbWaterColor_clicked();
 
     void on_pbShowLog_clicked();
+
+    void updateUIEnabled(const bool &enable);
 
 private:
     Ui::MainWindow *ui;
