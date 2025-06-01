@@ -58,8 +58,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    QSettings *settings;
-    QDir *omsiDir;
+    QSettings settings;
+    QDir omsiDir;
 
     int RESOLUTION = 300;
 

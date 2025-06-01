@@ -24,21 +24,20 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
+    settings("ma7t3", "OmsiRoadmapTool"),
     busstopLabelFont("Open Sans", 26, 700),
     _workerThread(new WorkerThread(this)) {
     ui->setupUi(this);
 
-    settings = new QSettings("ma7t3", "OmsiRoadmapTool");
-
-    if(!settings->contains("omsiPath"))
-        omsiDir = new QDir("");
+    if(!settings.contains("omsiPath"))
+        omsiDir = QDir("");
     else {
-        omsiDir = new QDir(settings->value("omsiPath").toString());
-        if(!omsiDir->exists())
-            omsiDir->setPath("");
+        omsiDir = QDir(settings.value("omsiPath").toString());
+        if(!omsiDir.exists())
+            omsiDir.setPath("");
     }
 
-    ui->leOmsiDir->setText(omsiDir->path());
+    ui->leOmsiDir->setText(omsiDir.path());
 
     connect(_workerThread, &WorkerThread::progressMaximumChanged, ui->progressBar, &QProgressBar::setMaximum);
     connect(_workerThread, &WorkerThread::progressValueChanged,   ui->progressBar, &QProgressBar::setValue);
@@ -57,7 +56,7 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::on_pbOmsiDirBrowse_clicked() {
-    QString path = settings->value("omsiPath").toString();
+    QString path = settings.value("omsiPath").toString();
 
     path = QFileDialog::getExistingDirectory(this, "", path, QFileDialog::ShowDirsOnly);
     if(path == "")
@@ -71,8 +70,8 @@ void MainWindow::on_pbOmsiDirBrowse_clicked() {
     }
 
     ui->leOmsiDir->setText(path);
-    omsiDir->setPath(path);
-    settings->setValue("omsiPath", path);
+    omsiDir.setPath(path);
+    settings.setValue("omsiPath", path);
 
     on_pbMapsReload_clicked();
 }
@@ -80,7 +79,7 @@ void MainWindow::on_pbOmsiDirBrowse_clicked() {
 void MainWindow::on_pbMapsReload_clicked() {
     ui->cbMaps->clear();
 
-    QDir mapsDir = omsiDir->path() + "/maps";
+    QDir mapsDir = omsiDir.path() + "/maps";
     if(!mapsDir.exists())
         return;
 
@@ -105,14 +104,14 @@ void MainWindow::on_pbStart_clicked() {
     ui->lwLog->clear();
 
     // load tiles
-    QDir mapDir = omsiDir->path() + "/maps/" + ui->cbMaps->currentText();
+    QDir mapDir = omsiDir.path() + "/maps/" + ui->cbMaps->currentText();
     QFile globalCfg(mapDir.path() + "/global.cfg");
     if(!globalCfg.exists()) {
         QMessageBox::critical(this, tr("Invalid Map"), tr("<p><b>File global.cfg not found.</b></p>"));
         return;
     }
 
-    _workerThread->setOmsiDir(*omsiDir);
+    _workerThread->setOmsiDir(omsiDir);
     _workerThread->setMapName(ui->cbMaps->currentText());
     _workerThread->setDrawBusstops(ui->cbDrawBusstops->isChecked());
     _workerThread->setDrawBusstopNames(ui->cbDrawBusstopsNames->isChecked());
