@@ -70,7 +70,7 @@ void WorkerThread::setTargetImageFilePath(const QString &path) {
 }
 
 void WorkerThread::run() {
-    OmsiMap *map = new OmsiMap;
+    OmsiMap map;
 
     QDir mapDir(_omsiDir.path() + "/maps/" + _mapName);
 
@@ -95,7 +95,7 @@ void WorkerThread::run() {
             int x = strX.toInt(&okX);
             int y = strY.toInt(&okY);
             if(okX && okY) {
-                map->addTile(x, y, path);
+                map.addTile(x, y, path);
             } else
                 emit log(tr("Tile No. %1 is bad!").arg(QString::number(tileCount)));
         }
@@ -103,11 +103,11 @@ void WorkerThread::run() {
 
     // adjust tiles
     int minX = 0, minY = 0;
-    foreach(OmsiMapTile *tile, map->tiles()) {
+    foreach(OmsiMapTile *tile, map.tiles()) {
         if(minX > tile->x()) minX = tile->x();
         if(minY > tile->y()) minY = tile->y();
     }
-    foreach(OmsiMapTile *tile, map->tiles()) {
+    foreach(OmsiMapTile *tile, map.tiles()) {
         tile->setX(tile->x() - minX);
         tile->setY(tile->y() - minY);
     }
@@ -119,7 +119,7 @@ void WorkerThread::run() {
     emit log("Loading map...");
 
     int currentTile = -1;
-    foreach(OmsiMapTile *tile, map->tiles()) {
+    foreach(OmsiMapTile *tile, map.tiles()) {
         currentTile++;
         emit progressValueChanged(currentTile);
 
@@ -308,25 +308,25 @@ void WorkerThread::run() {
 
     }
 
-    foreach(OmsiMapTile *tile, map->tiles()) {
+    foreach(OmsiMapTile *tile, map.tiles()) {
         foreach(OmsiSceneryobject *object, tile->objects()) {
             if(object->fileName() == _omsiDir.path() + "/Sceneryobjects/Generic/bus_stop.sco") {
 
                 float x, y;
                 x = (tile->x()) * 300 + object->x();
-                y = (((map->height() - 1) - tile->y()) * 300) + (300 - object->y());
+                y = (((map.height() - 1) - tile->y()) * 300) + (300 - object->y());
 
                 QPoint p(x, y);
                 QPoint lp(x + 15, y + 10);
                 QString label = object->stringAt(0);
-                map->addBusstop(p);
-                map->addBusstopLabel(QPair<QPoint, QString>(lp, label));
+                map.addBusstop(p);
+                map.addBusstopLabel(QPair<QPoint, QString>(lp, label));
             }
         }
     }
 
     // join busstop labels
-    QList<QPair<QPoint, QString>> allLabels = map->busstopLabels();
+    QList<QPair<QPoint, QString>> allLabels = map.busstopLabels();
     QList<QPair<QPoint, QString>> filteredLabels = {};
 
     QStringList uniqueNames;
@@ -453,26 +453,26 @@ void WorkerThread::run() {
         filteredLabels[i] = currentLabel;
     }
 
-    map->setBusstopLabels(filteredLabels);
-    //map->setBusstopLabels(filteredLabels);
+    map.setBusstopLabels(filteredLabels);
+    //map.setBusstopLabels(filteredLabels);
 
     emit log("drawing paths...");
 
     emit progressValueChanged(0);
 
     int width, height;
-    width = map->width() * 300;
-    height = map->height() * 300;
+    width = map.width() * 300;
+    height = map.height() * 300;
 
-    QPixmap *pixmap = new QPixmap(width, height);
+    QPixmap pixmap(width, height);
 
     if(_drawTerrainHeight)
-        pixmap->fill(QColor("#6b8060"));
+        pixmap.fill(QColor("#6b8060"));
     else
-        pixmap->fill(_terrainBackgroundColor);
+        pixmap.fill(_terrainBackgroundColor);
 
-    QPainter *painter = new QPainter(pixmap);
-    painter->setRenderHint(QPainter::Antialiasing);
+    QPainter painter(&pixmap);
+    painter.setRenderHint(QPainter::Antialiasing);
 
 
     QList<QColor> colors;
@@ -485,14 +485,14 @@ void WorkerThread::run() {
     colors << QColor("#ab8152");
     colors << QColor("#7a4732");
 
-    foreach(OmsiMapTile *tile, map->tiles()) {
+    foreach(OmsiMapTile *tile, map.tiles()) {
         // drawTerrain
         for(int i = 0; i < 61; i++) {
             for(int j = 0; j < 61; j++) {
                 float pixelValue = tile->terrain(i, j);
 
                 int x = tile->x() * 300 + i*4.918;
-                int y = (((map->height() - 1) - tile->y()) * 300) + j*4.918;
+                int y = (((map.height() - 1) - tile->y()) * 300) + j*4.918;
 
                 if(pixelValue >= tile->water() || !tile->hasWater() || !_drawWater) {
                     int colorIndex = qBound(0, static_cast<int>(std::sqrt(pixelValue / _terrainFactor)), 7);
@@ -500,24 +500,24 @@ void WorkerThread::run() {
                     if(!_drawTerrainHeight)
                         continue;
 
-                    painter->setBrush(colors[colorIndex]);
+                    painter.setBrush(colors[colorIndex]);
                 } else {
                     if(_drawWater)
-                        painter->setBrush(_waterColor);
+                        painter.setBrush(_waterColor);
                 }
 
-                painter->setPen(Qt::NoPen);
-                painter->drawRect(x, y, 5, 5);
+                painter.setPen(Qt::NoPen);
+                painter.drawRect(x, y, 5, 5);
             }
         }
     }
 
-    painter->setBrush(Qt::NoBrush);
+    painter.setBrush(Qt::NoBrush);
 
     int i = 0;
-    foreach(OmsiMapTile *tile, map->tiles()) {
+    foreach(OmsiMapTile *tile, map.tiles()) {
         foreach(OmsiSpline *spline, tile->splines()) {
-            drawSpline(painter, spline, tile, map->height());
+            drawSpline(&painter, spline, tile, map.height());
         }
 
         foreach(OmsiSceneryobject *object, tile->objects()) {
@@ -534,7 +534,7 @@ void WorkerThread::run() {
                 path->setY(object->y() + newY);
                 path->setRot(path->rot() - objRot);
 
-                drawPath(painter, path, tile, map->height());
+                drawPath(&painter, path, tile, map.height());
             }
             qDeleteAll(pathes);
         }
@@ -546,15 +546,15 @@ void WorkerThread::run() {
     if(_drawBusstops) {
         emit log("drawing busstops...");
 
-        foreach(QPoint busstop, map->busstops()) {
-            drawBusstop(painter, busstop);
+        foreach(QPoint busstop, map.busstops()) {
+            drawBusstop(&painter, busstop);
         }
 
         if(_drawBusstopNames) {
-            QList<QPair<QPoint, QString>> labels = map->busstopLabels();
-            for(int i = 0; i < map->busstopLabels().count(); i++) {
+            QList<QPair<QPoint, QString>> labels = map.busstopLabels();
+            for(int i = 0; i < map.busstopLabels().count(); i++) {
                 QPair<QPoint, QString> label = labels[i];
-                drawBusstopLabel(painter, label.first, label.second);
+                drawBusstopLabel(&painter, label.first, label.second);
             }
         }
     }
@@ -562,7 +562,7 @@ void WorkerThread::run() {
     emit log("saving image to file...");
     emit progressMaximumChanged(0);
 
-    pixmap->save(_targetImageFilePath);
+    pixmap.save(_targetImageFilePath);
 
     emit progressMaximumChanged(0);
     emit progressValueChanged(0);
@@ -594,8 +594,8 @@ void WorkerThread::drawSpline(QPainter *painter, OmsiSpline *spline, OmsiMapTile
         float newX = (x * (qCos(qDegreesToRadians(splRot))) - (y * qSin(qDegreesToRadians(splRot))));
         float newY = (x * (qSin(qDegreesToRadians(splRot))) + (y * qCos(qDegreesToRadians(splRot))));
 
-        OmsiPath *path = new OmsiPath(spline->x() + newX, spline->y() + newY, - splRot, newLen, newRad, current.first);
-        drawPath(painter, path, tile, mapHeight);
+        OmsiPath path(spline->x() + newX, spline->y() + newY, - splRot, newLen, newRad, current.first);
+        drawPath(painter, &path, tile, mapHeight);
     }
 }
 
