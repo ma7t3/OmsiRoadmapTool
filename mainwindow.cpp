@@ -19,6 +19,7 @@
 #include <QPen>
 
 #include <QDesktopServices>
+#include <QCloseEvent>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -128,6 +129,16 @@ void MainWindow::on_pbStart_clicked() {
     _workerThread->start();
     updateUIEnabled(false);
     ui->pbCancel->setVisible(true);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    if(_workerThread->isRunning()) {
+        if(QMessageBox::warning(this, tr("Ongoing operation"), tr("There is a roadmap currently being painted. Do you really want to quit? The current operation will be canceled."), QMessageBox::Yes, QMessageBox::No) == QMessageBox::Yes) {
+            _workerThread->requestInterruption();
+            _workerThread->wait();
+        }
+    }
+    event->accept();
 }
 
 void MainWindow::log(QString message) {

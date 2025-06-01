@@ -29,6 +29,8 @@ private slots:
     void on_pbTargetPathBrowse_clicked();
     void on_pbStart_clicked();
 
+    virtual void closeEvent(QCloseEvent *event) override;
+
     void log(QString);
 
     void onWorkerFinished();
