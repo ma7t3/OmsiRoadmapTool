@@ -16,8 +16,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
@@ -45,6 +44,8 @@ private slots:
     void on_cbDrawBusstopsNames_stateChanged(int arg1);
 
     void on_pbWaterColor_clicked();
+
+    void on_pbShowLog_clicked();
 
 private:
     Ui::MainWindow *ui;

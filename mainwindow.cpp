@@ -44,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_workerThread, &WorkerThread::log, this, &MainWindow::log);
 
     on_pbMapsReload_clicked();
+
+    ui->lwLog->setVisible(false);
 }
 
 MainWindow::~MainWindow() {
@@ -126,6 +128,7 @@ void MainWindow::on_pbStart_clicked() {
 void MainWindow::log(QString message) {
     ui->lwLog->addItem(message);
     ui->lwLog->scrollToBottom();
+    ui->statusbar->showMessage(message);
 }
 
 void MainWindow::on_pbStreetColor_clicked() {
@@ -168,5 +171,8 @@ void MainWindow::on_cbDrawBusstopsNames_stateChanged(int arg1) {
     ui->fcbBusstopFont->setEnabled(ui->cbDrawBusstopsNames->isChecked());
 }
 
-
-
+void MainWindow::on_pbShowLog_clicked() {
+    const bool &current = ui->lwLog->isVisible();
+    ui->lwLog->setVisible(!current);
+    ui->pbShowLog->setText(current ? tr("Show Log") : tr("Hide Log"));
+}
