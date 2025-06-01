@@ -453,6 +453,13 @@
     <item>
      <widget class="QListWidget" name="lwLog"/>
     </item>
+    <item>
+     <widget class="QPushButton" name="pbCancel">
+      <property name="text">
+       <string>Cancel</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">

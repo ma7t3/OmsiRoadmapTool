@@ -42,10 +42,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(_workerThread, &WorkerThread::progressMaximumChanged, ui->progressBar, &QProgressBar::setMaximum);
     connect(_workerThread, &WorkerThread::progressValueChanged,   ui->progressBar, &QProgressBar::setValue);
     connect(_workerThread, &WorkerThread::log, this, &MainWindow::log);
+    connect(_workerThread, &WorkerThread::finished, this, &MainWindow::onWorkerFinished);
 
     on_pbMapsReload_clicked();
 
     ui->lwLog->setVisible(false);
+    ui->statusbar->addPermanentWidget(ui->pbCancel);
+    ui->pbCancel->setVisible(false);
 }
 
 MainWindow::~MainWindow() {
@@ -124,6 +127,7 @@ void MainWindow::on_pbStart_clicked() {
     _workerThread->setTargetImageFilePath(ui->leTargetPath->text());
     _workerThread->start();
     updateUIEnabled(false);
+    ui->pbCancel->setVisible(true);
 }
 
 void MainWindow::log(QString message) {
@@ -136,6 +140,8 @@ void MainWindow::onWorkerFinished() {
     ui->progressBar->setValue(0);
     ui->progressBar->setMaximum(1);
     updateUIEnabled(true);
+    ui->pbCancel->setVisible(false);
+    ui->statusbar->clearMessage();
 }
 
 void MainWindow::on_pbStreetColor_clicked() {
@@ -190,4 +196,9 @@ void MainWindow::updateUIEnabled(const bool &enable) {
     ui->gbTargetImage->setEnabled(enable);
     ui->twOptions->setEnabled(enable);
     ui->pbStart->setEnabled(enable);
+}
+
+void MainWindow::on_pbCancel_clicked() {
+    if(_workerThread->isRunning())
+        _workerThread->requestInterruption();
 }

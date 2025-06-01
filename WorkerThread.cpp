@@ -99,6 +99,9 @@ void WorkerThread::run() {
             } else
                 emit log(tr("Tile No. %1 is bad!").arg(QString::number(tileCount)));
         }
+
+        if(isInterruptionRequested())
+            return;
     }
 
     // adjust tiles
@@ -306,6 +309,8 @@ void WorkerThread::run() {
                 emit log(tr("Tile \"%1\" - water file not found!").arg(tile->fileName() + ".water"));
         }
 
+        if(isInterruptionRequested())
+            return;
     }
 
     foreach(OmsiMapTile *tile, map.tiles()) {
@@ -323,6 +328,9 @@ void WorkerThread::run() {
                 map.addBusstopLabel(QPair<QPoint, QString>(lp, label));
             }
         }
+
+        if(isInterruptionRequested())
+            return;
     }
 
     // join busstop labels
@@ -371,6 +379,9 @@ void WorkerThread::run() {
         float newYAvg = newYSum / newY.count();
 
         filteredLabels << QPair<QPoint, QString>(QPoint(newX, newYAvg), currentName);
+
+        if(isInterruptionRequested())
+            return;
     }
 
     emit log("Finished loading map!");
@@ -451,6 +462,9 @@ void WorkerThread::run() {
         }
 
         filteredLabels[i] = currentLabel;
+
+        if(isInterruptionRequested())
+            return;
     }
 
     map.setBusstopLabels(filteredLabels);
@@ -510,6 +524,9 @@ void WorkerThread::run() {
                 painter.drawRect(x, y, 5, 5);
             }
         }
+
+        if(isInterruptionRequested())
+            return;
     }
 
     painter.setBrush(Qt::NoBrush);
@@ -541,6 +558,9 @@ void WorkerThread::run() {
 
         i++;
         emit progressValueChanged(i);
+
+        if(isInterruptionRequested())
+            return;
     }
 
     if(_drawBusstops) {

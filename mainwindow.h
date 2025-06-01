@@ -51,6 +51,8 @@ private slots:
 
     void updateUIEnabled(const bool &enable);
 
+    void on_pbCancel_clicked();
+
 private:
     Ui::MainWindow *ui;
 
