@@ -17,6 +17,8 @@ public:
 
     void setOmsiDir(const QDir &path);
     void setMapName(const QString &mapName);
+    void setDrawTileBorders(bool newDrawTileBorders);
+    void setTileBorderPen(const QPen &newTileBorderPen);
     void setDrawBusstops(const bool &b);
     void setDrawBusstopNames(const bool &b);
     void setDrawWater(const bool &b);
@@ -30,8 +32,10 @@ public:
     void setTerrainFactor(const int &factor);
     void setTargetImageFilePath(const QString &path);
 
+
 protected:
     void run() override;
+    void drawTileRect(QPainter *, OmsiMapTile *, int height);
     void drawSpline(QPainter *, OmsiSpline *, OmsiMapTile *, int height);
     void drawPath(QPainter *, OmsiPath *, OmsiMapTile *, int height);
     void drawBusstop(QPainter *, QPoint);
@@ -46,10 +50,10 @@ private:
     QDir _omsiDir;
     QString _mapName, _targetImageFilePath;
     QFont _busstopLabelFont;
-    bool _drawBusstops, _drawBusstopNames, _drawWater, _drawTerrainHeight;
+    bool _drawTileBorders, _drawBusstops, _drawBusstopNames, _drawWater, _drawTerrainHeight;
     QColor _busstopColor, _terrainBackgroundColor, _waterColor;
     int _terrainFactor;
-    QPen _streetPen, _railPen;
+    QPen _tileBorderPen, _streetPen, _railPen;
 };
 
 #endif // WORKERTHREAD_H

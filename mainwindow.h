@@ -41,6 +41,8 @@ private slots:
 
     void on_pbBackgroundColor_clicked();
 
+    void on_pbTileBorderColor_clicked();
+
     void on_pbBusstopColor_clicked();
 
     void on_cbDrawBusstops_stateChanged(int arg1);
@@ -54,6 +56,9 @@ private slots:
     void updateUIEnabled(const bool &enable);
 
     void on_pbCancel_clicked();
+
+
+    void on_cbDrawTileBorders_checkStateChanged(const Qt::CheckState &arg1);
 
 private:
     Ui::MainWindow *ui;

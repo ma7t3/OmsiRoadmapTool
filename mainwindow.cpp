@@ -46,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     on_pbMapsReload_clicked();
 
+    on_cbDrawTileBorders_checkStateChanged(ui->cbDrawTileBorders->checkState());
+
     ui->lwLog->setVisible(false);
     ui->statusbar->addPermanentWidget(ui->pbCancel);
     ui->pbCancel->setVisible(false);
@@ -113,6 +115,8 @@ void MainWindow::on_pbStart_clicked() {
 
     _workerThread->setOmsiDir(omsiDir);
     _workerThread->setMapName(ui->cbMaps->currentText());
+    _workerThread->setDrawTileBorders(ui->cbDrawTileBorders->isChecked());
+    _workerThread->setTileBorderPen(QPen(QColor(ui->pbTileBorderColor->styleSheet().remove("background-color: ")), ui->sbTileBorderWidth->value()));
     _workerThread->setDrawBusstops(ui->cbDrawBusstops->isChecked());
     _workerThread->setDrawBusstopNames(ui->cbDrawBusstopsNames->isChecked());
     _workerThread->setDrawWater(ui->cbDrawWater->isChecked());
@@ -165,12 +169,21 @@ void MainWindow::on_pbRailColor_clicked() {
     ui->pbRailColor->setStyleSheet("background-color: " + newColor.name(QColor::HexRgb));
 }
 
-
 void MainWindow::on_pbBackgroundColor_clicked() {
     QColor newColor = QColorDialog::getColor(ui->pbBackgroundColor->styleSheet().remove("background-color: "), this);
     ui->pbBackgroundColor->setStyleSheet("background-color: " + newColor.name(QColor::HexRgb));
 }
 
+void MainWindow::on_cbDrawTileBorders_checkStateChanged(const Qt::CheckState &arg1) {
+    const bool checked = arg1 == Qt::Checked;
+    ui->pbTileBorderColor->setEnabled(checked);
+    ui->sbTileBorderWidth->setEnabled(checked);
+}
+
+void MainWindow::on_pbTileBorderColor_clicked(){
+    QColor newColor = QColorDialog::getColor(ui->pbTileBorderColor->styleSheet().remove("background-color: "), this);
+    ui->pbTileBorderColor->setStyleSheet("background-color: " + newColor.name(QColor::HexRgb));
+}
 
 void MainWindow::on_pbBusstopColor_clicked() {
     QColor newColor = QColorDialog::getColor(ui->pbBusstopColor->styleSheet().remove("background-color: "), this);
@@ -212,3 +225,5 @@ void MainWindow::on_pbCancel_clicked() {
     if(_workerThread->isRunning())
         _workerThread->requestInterruption();
 }
+
+
