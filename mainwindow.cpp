@@ -117,6 +117,7 @@ void MainWindow::on_pbStart_clicked() {
     _workerThread->setMapName(ui->cbMaps->currentText());
     _workerThread->setDrawTileBorders(ui->cbDrawTileBorders->isChecked());
     _workerThread->setTileBorderPen(QPen(QColor(ui->pbTileBorderColor->styleSheet().remove("background-color: ")), ui->sbTileBorderWidth->value()));
+    _workerThread->setDrawTileCoordinates(ui->cbdrawTileCoordinates->isChecked());
     _workerThread->setDrawBusstops(ui->cbDrawBusstops->isChecked());
     _workerThread->setDrawBusstopNames(ui->cbDrawBusstopsNames->isChecked());
     _workerThread->setDrawWater(ui->cbDrawWater->isChecked());
