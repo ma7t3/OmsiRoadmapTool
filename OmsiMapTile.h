@@ -13,9 +13,11 @@ public:
     ~OmsiMapTile();
 
     int x() const;
+    int originalX() const;
     void setX(int newX);
 
     int y() const;
+    int originalY() const;
     void setY(int newY);
 
     QString fileName() const;
@@ -38,7 +40,7 @@ public:
     bool hasWater() const;
 
 private:
-    int _x, _y;
+    int _x, _y, _originalX, _originalY;
     QString _fileName;
 
     QList<OmsiSpline *> _splines;

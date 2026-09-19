@@ -21,6 +21,18 @@ void WorkerThread::setMapName(const QString &mapName) {
     _mapName = mapName;
 }
 
+void WorkerThread::setDrawTileBorders(bool newDrawTileBorders) {
+    _drawTileBorders = newDrawTileBorders;
+}
+
+void WorkerThread::setDrawTileCoordinates(bool newDrawTileCoordinates) {
+    _drawTileCoordinates = newDrawTileCoordinates;
+}
+
+void WorkerThread::setTileBorderPen(const QPen &newTileBorderPen) {
+    _tileBorderPen = newTileBorderPen;
+}
+
 void WorkerThread::setDrawBusstops(const bool &b) {
     _drawBusstops = b;
 }
@@ -531,6 +543,11 @@ void WorkerThread::run() {
 
     painter.setBrush(Qt::NoBrush);
 
+    if(_drawTileBorders) {
+        foreach(OmsiMapTile *tile, map.tiles())
+            drawTileRect(&painter, tile, map.height());
+    }
+
     int i = 0;
     foreach(OmsiMapTile *tile, map.tiles()) {
         foreach(OmsiSpline *spline, tile->splines()) {
@@ -579,6 +596,11 @@ void WorkerThread::run() {
         }
     }
 
+    if(_drawTileCoordinates) {
+        foreach(OmsiMapTile *tile, map.tiles())
+            drawTileCoordinates(&painter, tile, map.height());
+    }
+
     emit log("saving image to file...");
     emit progressMaximumChanged(0);
 
@@ -591,6 +613,35 @@ void WorkerThread::run() {
 
     qApp->thread()->msleep(100);
     QDesktopServices::openUrl(_targetImageFilePath);
+}
+
+void WorkerThread::drawTileRect(QPainter *painter, OmsiMapTile *tile, int mapHeight) {
+    painter->setBrush(Qt::NoBrush);
+    painter->setPen(_tileBorderPen);
+    QRect rect(
+        tile->x() * 300,
+        (((mapHeight - 1) - tile->y()) * 300),
+        300,
+        300
+    );
+    painter->drawRect(rect);
+}
+
+void WorkerThread::drawTileCoordinates(QPainter *painter, OmsiMapTile *tile, int mapHeight) {
+    painter->setBrush(Qt::NoBrush);
+    painter->setPen(_tileBorderPen);
+    QRect rect(
+        tile->x() * 300,
+        (((mapHeight - 1) - tile->y()) * 300),
+        300,
+        300
+        );
+
+    static QFont f;
+    f.setPixelSize(20);
+    int offset = _tileBorderPen.width() + 4;
+    painter->setFont(f);
+    painter->drawText(rect.adjusted(offset, offset, -offset, -offset), QString("%1 / %2").arg(tile->originalX()).arg(tile->originalY()), Qt::AlignTop|Qt::AlignLeft);
 }
 
 void WorkerThread::drawSpline(QPainter *painter, OmsiSpline *spline, OmsiMapTile *tile, int mapHeight) {
@@ -713,3 +764,4 @@ void WorkerThread::drawBusstopLabel(QPainter *painter, QPoint point, QString lab
     //painter->setFont(busstopLabelFont);
     painter->drawText(point, label);
 }
+

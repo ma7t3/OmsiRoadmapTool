@@ -3,6 +3,8 @@
 OmsiMapTile::OmsiMapTile(int x, int y, QString fileName) :
     _x(x),
     _y(y),
+    _originalX(x),
+    _originalY(y),
     _fileName(fileName) {
 }
 
@@ -15,12 +17,20 @@ int OmsiMapTile::x() const {
     return _x;
 }
 
+int OmsiMapTile::originalX() const {
+    return _originalX;
+}
+
 void OmsiMapTile::setX(int newX) {
     _x = newX;
 }
 
 int OmsiMapTile::y() const {
     return _y;
+}
+
+int OmsiMapTile::originalY() const {
+    return _originalY;
 }
 
 void OmsiMapTile::setY(int newY) {
