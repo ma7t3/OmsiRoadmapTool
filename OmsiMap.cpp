@@ -5,6 +5,10 @@ OmsiMap::OmsiMap() {
 
 }
 
+OmsiMap::~OmsiMap() {
+    qDeleteAll(_tiles);
+}
+
 void OmsiMap::addTile(OmsiMapTile *tile) {
     _tiles << tile;
 }

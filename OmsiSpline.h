@@ -9,6 +9,8 @@ class OmsiSpline
 public:
     OmsiSpline(QString fileName, float x, float y, float rot, float len, float rad);
 
+    ~OmsiSpline();
+
     float x() const;
     void setX(float newX);
 

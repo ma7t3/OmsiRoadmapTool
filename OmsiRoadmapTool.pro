@@ -14,6 +14,7 @@ SOURCES += \
     OmsiPath.cpp \
     OmsiSceneryobject.cpp \
     OmsiSpline.cpp \
+    WorkerThread.cpp \
     main.cpp \
     mainwindow.cpp
 
@@ -23,6 +24,7 @@ HEADERS += \
     OmsiPath.h \
     OmsiSceneryobject.h \
     OmsiSpline.h \
+    WorkerThread.h \
     mainwindow.h
 
 FORMS += \

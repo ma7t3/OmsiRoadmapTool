@@ -5,6 +5,9 @@
 #include "OmsiSpline.h"
 #include "OmsiMapTile.h"
 
+
+#include "WorkerThread.h"
+
 #include <QMainWindow>
 #include <QDir>
 #include <QSettings>
@@ -13,8 +16,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
@@ -27,12 +29,11 @@ private slots:
     void on_pbTargetPathBrowse_clicked();
     void on_pbStart_clicked();
 
-    void drawSpline(QPainter *, OmsiSpline *, OmsiMapTile *, int height);
-    void drawPath(QPainter *, OmsiPath *, OmsiMapTile *, int height);
-    void drawBusstop(QPainter *, QPoint);
-    void drawBusstopLabel(QPainter *, QPoint, QString);
+    virtual void closeEvent(QCloseEvent *event) override;
 
     void log(QString);
+
+    void onWorkerFinished();
 
     void on_pbStreetColor_clicked();
 
@@ -48,14 +49,22 @@ private slots:
 
     void on_pbWaterColor_clicked();
 
+    void on_pbShowLog_clicked();
+
+    void updateUIEnabled(const bool &enable);
+
+    void on_pbCancel_clicked();
+
 private:
     Ui::MainWindow *ui;
 
-    QSettings *settings;
-    QDir *omsiDir;
+    QSettings settings;
+    QDir omsiDir;
 
     int RESOLUTION = 300;
 
     QFont busstopLabelFont;
+
+    WorkerThread *_workerThread;
 };
 #endif // MAINWINDOW_H
