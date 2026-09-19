@@ -62,10 +62,10 @@ void MainWindow::on_pbOmsiDirBrowse_clicked() {
     if(path == "")
         return;
 
-    QFile omsiExe(path + "/omsi.exe");
+    QFile omsiExe(path + "/Omsi.exe");
     QDir omsiMaps(path + "/maps");
     if(!omsiExe.exists() || !omsiMaps.exists()) {
-        QMessageBox::critical(this, tr("Invalid Directory"), tr("<p><b>The selected directory is not valid.</b></p><p>No omsi.exe or maps folder found.</p>"));
+        QMessageBox::critical(this, tr("Invalid Directory"), tr("<p><b>The selected directory is not valid.</b></p><p>No Omsi.exe or maps folder found.</p>"));
         return;
     }
 
